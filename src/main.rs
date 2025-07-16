@@ -1,12 +1,15 @@
-
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
-    use axum::Router;
+    use axum::{routing::get, Router};
     use leptos::logging::log;
     use leptos::prelude::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
-    use pixl8multimedia::app::*;
+    use pixl8multimedia::{app::*, app_state::AppState};
+
+    dotenv::dotenv().ok();
+
+    let db_url = std::env::var("SERVICE_DB_URL").expect("SERVICE_DB_URL is not set");
 
     let conf = get_configuration(None).unwrap();
     let addr = conf.leptos_options.site_addr;
@@ -14,13 +17,36 @@ async fn main() {
     // Generate the list of routes in your Leptos App
     let routes = generate_route_list(App);
 
+    let db_pool = sqlx::postgres::PgPoolOptions::new()
+        .max_connections(5)
+        .connect(db_url.as_ref())
+        .await
+        .expect("Failed to initialize database");
+
+    let state = AppState {
+        leptos_options: leptos_options.clone(),
+        db_pool,
+    };
+
     let app = Router::new()
-        .leptos_routes(&leptos_options, routes, {
-            let leptos_options = leptos_options.clone();
-            move || shell(leptos_options.clone())
-        })
-        .fallback(leptos_axum::file_and_error_handler(shell))
-        .with_state(leptos_options);
+        .route(
+            "/api/{*fn_name}",
+            get(server_fn_handler::server_fn_handler).post(server_fn_handler::server_fn_handler),
+        )
+        .leptos_routes_with_context(
+            &state,
+            routes,
+            {
+                let db_pool = state.db_pool.clone();
+                move || provide_context(db_pool.clone())
+            },
+            {
+                let state = state.clone();
+                move || shell(state.leptos_options.clone())
+            },
+        )
+        .fallback(leptos_axum::file_and_error_handler::<AppState, _>(shell))
+        .with_state(state);
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
@@ -29,6 +55,30 @@ async fn main() {
     axum::serve(listener, app.into_make_service())
         .await
         .unwrap();
+}
+
+#[cfg(feature = "ssr")]
+mod server_fn_handler {
+    use axum::{
+        extract::{Request, State},
+        response::IntoResponse,
+    };
+    use leptos::prelude::*;
+    use leptos_axum::handle_server_fns_with_context;
+    use pixl8multimedia::app_state::AppState;
+
+    pub async fn server_fn_handler(
+        State(app_state): State<AppState>,
+        request: Request,
+    ) -> impl IntoResponse {
+        handle_server_fns_with_context(
+            move || {
+                provide_context(app_state.db_pool.clone());
+            },
+            request,
+        )
+        .await
+    }
 }
 
 #[cfg(not(feature = "ssr"))]
