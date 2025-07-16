@@ -1,0 +1,31 @@
+# Applies to all bots
+User-agent: *
+Disallow: /wp-admin/
+Disallow: /cgi-bin/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /login/
+Disallow: /user/settings/
+Disallow: /private/
+Allow: /wp-admin/admin-ajax.php
+
+# Block specific parameters (like filter or tracking URLs)
+Disallow: /*?*sort=
+Disallow: /*?*sessionid=
+Disallow: /*?*tracking=
+
+# Allow full access to important assets
+Allow: /wp-content/uploads/
+Allow: /assets/css/
+Allow: /assets/js/
+
+# Set crawl delay (optional, some bots respect this)
+Crawl-delay: 10
+
+# Block a specific bot completely
+User-agent: BadBot
+Disallow: /
+
+# Sitemap location
+Sitemap: https://www.pixl8media.com/sitemap.xml
+
