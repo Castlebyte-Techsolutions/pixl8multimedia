@@ -33,6 +33,11 @@ leptos-use = "0.16"
 icondata = "0.6.0"
 icondata_core = "0.1.0"
 leptoaster = "0.2.3"
+chrono = { version = "0.4.41", features = ["serde"] }
+mail-send = { version = "0.5.1", optional = true }
+leptos_icons = "0.6.1"
+dashmap = { version = "6.1.0", optional = true }
+web-sys = { version = "0.3.77", features = ["Document", "Window", "MouseEvent", "File", "FileList", "DomParser", "SupportedType"] }
 
 [features]
 hydrate = [
@@ -42,6 +47,8 @@ hydrate = [
     "dep:wasm-bindgen",
 ]
 ssr = [
+    "dep:dashmap",
+    "dep:mail-send",
     "dep:sqlx",
     "dep:axum",
     "dep:tokio",
@@ -50,7 +57,7 @@ ssr = [
     "leptos-use/ssr",
     "leptos_meta/ssr",
     "leptos_router/ssr",
-    "leptoaster/ssr"
+    "leptoaster/ssr",
 ]
 
 # Defines a size-optimized profile for the WASM bundle in release mode
@@ -73,7 +80,7 @@ site-root = "target/site"
 site-pkg-dir = "pkg"
 
 # [Optional] The source CSS file. If it ends with .sass or .scss then it will be compiled by dart-sass into CSS. The CSS is optimized by Lightning CSS before being written to <site-root>/<site-pkg>/app.css
-style-file = "style/main.scss"
+style-file = "style/main.css"
 tailwind-input-file = "style/tailwind.css"
 
 # Assets source dir. All files found here will be copied and synchronized to site-root.
