@@ -4,7 +4,7 @@ use phosphor_leptos::{Icon, CHECK_SQUARE};
 
 mod upload;
 
-// pub use upload::UploadMaterialsView;
+pub use upload::UploadMaterialsView;
 
 #[component]
 pub fn ServiceSubmissionView() -> impl IntoView {

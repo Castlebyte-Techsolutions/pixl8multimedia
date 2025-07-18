@@ -9,11 +9,11 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 leptos = { version = "0.8.0", features = ["nightly"] }
 leptos_router = { version = "0.8.0", features = ["nightly"] }
-axum = { version = "0.8.0", features = ["macros"], optional = true }
+axum = { version = "0.8.0", features = ["macros", "multipart"], optional = true }
 console_error_panic_hook = { version = "0.1", optional = true }
 leptos_axum = { version = "0.8.0", optional = true }
 leptos_meta = { version = "0.8.0" }
-tokio = { version = "1", features = ["rt-multi-thread"], optional = true }
+tokio = { version = "1", features = ["full"], optional = true }
 wasm-bindgen = { version = "=0.2.100", optional = true }
 sqlx = { version = "0.8.6", features = ["runtime-tokio-rustls", "macros", "postgres", "uuid"], optional = true }
 serde = { version = "1.0.219", features = ["derive"] }
@@ -38,6 +38,13 @@ mail-send = { version = "0.5.1", optional = true }
 leptos_icons = "0.6.1"
 dashmap = { version = "6.1.0", optional = true }
 web-sys = { version = "0.3.77", features = ["Document", "Window", "MouseEvent", "File", "FileList", "DomParser", "SupportedType"] }
+uuid = { version = "1.17.0", features = ["v4", "v7", "fast-rng"], optional = true }
+data-encoding = { version = "2.9.0", optional = true }
+base64 = { version = "0.22", optional = true }
+base58 = { version = "0.2.0", optional = true }
+time = { version = "0.3.41", optional = true }
+derive_more = { version = "2.0.1", features = ["from", "display"], optional = true }
+server_fn = { version = "0.8.3", features = ["multipart", "serde-lite", "rustls"] }
 
 [features]
 hydrate = [
@@ -47,18 +54,21 @@ hydrate = [
     "dep:wasm-bindgen",
 ]
 ssr = [
+    "leptos/ssr",
+    "leptos-use/ssr",
+    "leptos_meta/ssr",
+    "leptos_router/ssr",
+    "leptoaster/ssr",
+    "dep:uuid",
     "dep:dashmap",
     "dep:mail-send",
     "dep:sqlx",
     "dep:axum",
     "dep:tokio",
     "dep:leptos_axum",
-    "leptos/ssr",
-    "leptos-use/ssr",
-    "leptos_meta/ssr",
-    "leptos_router/ssr",
-    "leptoaster/ssr",
-]
+    "dep:data-encoding",
+    "dep:derive_more",
+    "dep:base64", "dep:base58", "dep:time"]
 
 # Defines a size-optimized profile for the WASM bundle in release mode
 [profile.wasm-release]

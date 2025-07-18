@@ -1,15 +1,15 @@
 #[cfg(feature = "ssr")]
 #[tokio::main]
-async fn main() {
+async fn main() -> pixl8multimedia::error::Result<()> {
     use axum::{routing::get, Router};
     use leptos::logging::log;
     use leptos::prelude::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
-    use pixl8multimedia::{app::*, app_state::AppState};
+    use pixl8multimedia::{app::*, app_state::AppState, utils::configs::core_config};
 
     dotenv::dotenv().ok();
 
-    let db_url = std::env::var("SERVICE_DB_URL").expect("SERVICE_DB_URL is not set");
+    let db_url = &core_config().DB_URL;
 
     let conf = get_configuration(None).unwrap();
     let addr = conf.leptos_options.site_addr;
@@ -55,6 +55,8 @@ async fn main() {
     axum::serve(listener, app.into_make_service())
         .await
         .unwrap();
+
+    Ok(())
 }
 
 #[cfg(feature = "ssr")]

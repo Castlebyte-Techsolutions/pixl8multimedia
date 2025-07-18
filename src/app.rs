@@ -84,10 +84,10 @@ pub fn App() -> impl IntoView {
 
                         <ParentRoute path=StaticSegment("service") view=NoLayout>
                             <Route path=StaticSegment("") view=ServiceSubmissionView />
-                        // <Route
-                        // path=StaticSegment("upload-materials")
-                        // view=UploadMaterialsView
-                        // />
+                        <Route
+                        path=StaticSegment("upload-materials")
+                        view=UploadMaterialsView
+                        />
                         </ParentRoute>
                     </ParentRoute>
                 </Routes>

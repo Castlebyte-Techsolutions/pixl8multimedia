@@ -1,11 +1,11 @@
 use leptoaster::{expect_toaster, ToastBuilder};
 use leptos::{ev, prelude::*, task::spawn_local};
+use leptos_icons::Icon;
 use leptos_meta::Title;
 use leptos_router::components::Form;
 use serde::{Deserialize, Serialize};
-use leptos_icons::Icon;
 
-use crate:: sections::{FormInput, FormTextArea, InputType} ;
+use crate::sections::{FormInput, FormTextArea, InputType};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct EmailCredentials {
@@ -13,19 +13,7 @@ struct EmailCredentials {
     email_subj: String,
     email_msg: String,
 }
-
-#[cfg(feature = "ssr")]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EmailSendCredentials {
-    pub smtp_user: String,
-    pub smtp_pass: String,
-    pub smtp_host: String,
-    pub smtp_port: String,
-    pub email_to: String,
-}
-
-#[cfg(feature = "ssr")]
-pub static EMAIL_CREDS: std::sync::OnceLock<EmailSendCredentials> = std::sync::OnceLock::new();
+use crate::error::Result;
 
 #[tracing::instrument]
 #[server]
@@ -33,27 +21,34 @@ pub async fn email_send_api(
     email_add: String,
     email_subj: String,
     email_msg: String,
-) -> Result<String, ServerFnError> {
-    let creds = EMAIL_CREDS.get_or_init(|| EmailSendCredentials {
-        smtp_user: std::env::var("GMAIL_SMTP_USER").unwrap(),
-        smtp_pass: std::env::var("GMAIL_SMTP_PASS").unwrap(),
-        smtp_host: std::env::var("GMAIL_SMTP_HOST").unwrap(),
-        smtp_port: std::env::var("GMAIL_SMTP_PORT").unwrap(),
-        email_to: std::env::var("IONOS_USER").unwrap(),
-    });
-    let template = crate::templates::email_template::template_01(email_add, email_subj.clone(), email_msg);
+) -> Result<String> {
+    use crate::error::AppError;
+use crate::utils::configs::email_config;
+
+    let (smtp_user, smtp_pass, smtp_host, smtp_port, _email_to, _email_to_dev) = (
+        &email_config().GMAIL_SMTP_USER,
+        &email_config().GMAIL_SMTP_PASS,
+        &email_config().GMAIL_SMTP_HOST,
+        &email_config().GMAIL_SMTP_PORT,
+        &email_config().IONOS_USER,
+        &email_config().EMAIL_SEND_DEV,
+    );
+
+    let template =
+        crate::templates::email_template::template_01(email_add, email_subj.clone(), email_msg);
     let message = mail_send::mail_builder::MessageBuilder::new()
-        .from((creds.smtp_user.as_str(), "Pixl8Multimedia Support"))
-        .to(creds.email_to.as_str())
+        .from((smtp_user.as_str(), "Pixl8Multimedia Support"))
+        .to(_email_to.as_str())
         .subject(email_subj.as_str())
         .html_body(template);
 
     let client_res = mail_send::SmtpClientBuilder::new(
-        creds.smtp_host.as_str(),
-        creds.smtp_port.parse().unwrap(),
+        smtp_host.as_str(),
+        smtp_port.parse()
+            .map_err(|_| AppError::EmailPortParseError("Unable to parse smtp port".into()))?,
     )
     .implicit_tls(false)
-    .credentials((creds.smtp_user.as_str(), creds.smtp_pass.as_str()))
+    .credentials((smtp_user.as_str(), smtp_pass.as_str()))
     .connect()
     .await;
 
@@ -61,13 +56,14 @@ pub async fn email_send_api(
         Ok(mut client) => {
             if let Err(e) = client.send(message).await {
                 tracing::error!("Email sent failed: {e:?}");
-                return Err(ServerFnError::Response("Email failed to send".into()));
+                return Err(AppError::ServerFnError(ServerFnErrorErr::Response("Email sent failed".to_string())));
+
             }
             Ok("Email has been send successfully, We'll get you in touch soon".into())
         }
         Err(e) => {
             tracing::error!("Something went wrong with email");
-            Err(ServerFnError::ServerError(e.to_string()))
+            Err(AppError::ServerFnError(ServerFnErrorErr::ServerError(e.to_string())))
         }
     }
 }
@@ -97,7 +93,7 @@ pub fn ContactUsView() -> impl IntoView {
                 let mval = move || message_val.get();
 
                 match email_send_api(eval(), sval(), mval()).await {
-                    Ok(_) => {
+                    Ok(returned_val) => {
                         email_val.set(String::new());
                         subject_val.set(String::new());
                         message_val.set(String::new());
@@ -105,9 +101,7 @@ pub fn ContactUsView() -> impl IntoView {
                         is_loading.set(false);
 
                         toaster.toast(
-                            ToastBuilder::new(
-                                "your message has been sent successfully we'll get you in touch",
-                            )
+                            ToastBuilder::new(returned_val)
                             .with_level(leptoaster::ToastLevel::Success)
                             .with_expiry(Some(4_500))
                             .with_position(leptoaster::ToastPosition::TopRight),

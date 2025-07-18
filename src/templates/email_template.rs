@@ -1,11 +1,3 @@
-#[derive(Debug, Clone)]
-pub struct EmailTemplate02 {
-    pub email_fname: String,
-    pub email_add: String,
-    pub email_subj: String,
-    pub email_msg: String,
-}
-
 pub fn template_01(email_add: String, email_subj: String, email_msg: String) -> String {
     let style = String::from(
         "<style>
@@ -88,7 +80,12 @@ pub fn template_01(email_add: String, email_subj: String, email_msg: String) -> 
     )
 }
 
-pub fn template_02(email_data: EmailTemplate02) -> String {
+pub fn template_02(
+    email_fname: String,
+    email_add: String,
+    email_subj: String,
+    email_msg: String,
+) -> String {
     let style = String::from(
         "<style>
         body {
@@ -167,10 +164,6 @@ pub fn template_02(email_data: EmailTemplate02) -> String {
             </body>
             </html>
             ",
-        head_tag,
-        email_data.email_fname,
-        email_data.email_add,
-        email_data.email_subj,
-        email_data.email_msg
+        head_tag, email_fname, email_add, email_subj, email_msg
     )
 }
