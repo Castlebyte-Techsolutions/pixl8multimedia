@@ -3,7 +3,7 @@
     "build:server": "wasm-pack build --release --target web --out-name server --features ssr --no-default-features",
     "build:client": "wasm-pack build --release --target web --out-name client --features hydrate --no-default-features",
     "build": "deno task build:server & deno task build:client",
-    "start": "deno run --allow-read --allow-net main.ts"
+    "start": "deno run --allow-read --allow-net run.ts"
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@1"
