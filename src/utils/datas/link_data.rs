@@ -15,7 +15,7 @@ pub fn link_tag_data() -> Vec<LinkTagType> {
             title: "loretta sullivan book review".to_string(),
         },
         LinkTagType {
-            link: "services".to_string(),
+            link: "service".to_string(),
             title: "upload materials".to_string(),
         },
         LinkTagType {

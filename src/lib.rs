@@ -7,8 +7,8 @@ pub mod templates;
 pub mod utils;
 pub mod views;
 
-#[cfg(feature = "ssr")]
-pub mod app_state;
+// #[cfg(feature = "ssr")]
+// pub mod app_state;
 
 #[cfg(feature = "hydrate")]
 #[wasm_bindgen::prelude::wasm_bindgen]

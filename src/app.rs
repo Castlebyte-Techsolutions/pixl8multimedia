@@ -1,7 +1,7 @@
 use leptoaster::{provide_toaster, Toaster};
 use leptos::prelude::*;
 use leptos_icons::Icon;
-use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
+use leptos_meta::{provide_meta_context, MetaTags, Script, Stylesheet, Title};
 use leptos_router::{
     components::{ParentRoute, Route, Router, Routes, A},
     ParamSegment, StaticSegment,
@@ -16,12 +16,67 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
             <head>
                 <meta charset="utf-8" />
                 <meta
+                    name="description"
+                    content="Get noticed in Hollywood with Pixel8Media's professional screenplay query letter service. Craft compelling pitch letters that open doors to producers and agents."
+                />
+                <meta
+                    name="keywords"
+                    content="query letter for screenplay, professional screenplay query letter, screenplay pitch letter, screenwriting services, Pixl8Multimedia, screenwriter query help, Hollywood query letters"
+                />
+                <meta name="author" content="Pixel8Multimedia" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href="https://www.pixel8media.com" />
+
+                <meta
+                    property="og:title"
+                    content="Professional Screenplay Query Letters | Pixel8Media"
+                />
+                <meta
+                    property="og:description"
+                    content="Stand out with a compelling screenplay query letter written by industry experts. Get your script read by Hollywood professionals."
+                />
+                <meta
+                    property="og:image"
+                    content="https://www.pixel8media.com/images/logos/pixel8media-logo-edited.png"
+                />
+                <meta property="og:url" content="https://www.pixel8media.com" />
+                <meta property="og:type" content="website" />
+                <meta
                     name="viewport"
                     content="width=device-width, initial-scale=1"
                 />
                 <AutoReload options=options.clone() />
                 <HydrationScripts options />
                 <MetaTags />
+
+                <Script attr:r#type="application/ld+json">
+                    r#"{
+					"@context": "https://schema.org",
+					"@type": "ProfessionalService",
+					"name": "Pixel8Media",
+					"url": "https://www.pixel8media.com",
+					"logo": "https://www.pixel8media.com/public/logo.png",
+					"description": "Pixel8Media helps screenwriters craft industry-standard query letters to submit their screenplay ideas to producers, studios, and agents.",
+					"address": {
+					"@type": "PostalAddress",
+					"addressLocality": "Los Angeles",
+					"addressRegion": "CA",
+					"postalCode": "90001",
+					"addressCountry": "US"
+					},
+					"contactPoint": {
+					"@type": "ContactPoint",
+					"telephone": "+1-800-555-QUERY",
+					"contactType": "Customer Support",
+					"availableLanguage": ["English"]
+					},
+					"sameAs": [
+					"https://www.facebook.com/pixel8media",
+					"https://www.instagram.com/pixel8media",
+					"https://www.linkedin.com/company/pixel8media"
+					]
+					}"#
+                </Script>
             </head>
             <body>
                 <App />
@@ -47,51 +102,49 @@ pub fn App() -> impl IntoView {
         // content for this welcome page
         <Router>
             <Toaster stacked=true />
-            <main class="min-h-screen">
 
-                <Routes fallback=|| view! { <NotFoundView /> }.into_any()>
-                    <ParentRoute path=StaticSegment("") view=MainLayout>
-                        <Route path=StaticSegment("") view=IndexView />
-                        <Route path=StaticSegment("about-us") view=AboutUsView />
+            <Routes fallback=|| view! { <NotFoundView /> }.into_any()>
+                <ParentRoute path=StaticSegment("") view=MainLayout>
+                    <Route path=StaticSegment("") view=IndexView />
+                    <Route path=StaticSegment("about-us") view=AboutUsView />
 
-                        <Route
-                            path=StaticSegment("contact-us")
-                            view=ContactUsView
-                        />
-                        <Route
-                            path=StaticSegment("terms-of-service")
-                            view=TermsOfServiceView
-                        />
-                        <Route
-                            path=StaticSegment("privacy-policy")
-                            view=PrivacyPolicyView
-                        />
-                        <Route
-                            path=StaticSegment("refund-policy")
-                            view=RefundPolicyView
-                        />
+                    <Route
+                        path=StaticSegment("contact-us")
+                        view=ContactUsView
+                    />
+                    <Route
+                        path=StaticSegment("terms-of-service")
+                        view=TermsOfServiceView
+                    />
+                    <Route
+                        path=StaticSegment("privacy-policy")
+                        view=PrivacyPolicyView
+                    />
+                    <Route
+                        path=StaticSegment("refund-policy")
+                        view=RefundPolicyView
+                    />
 
-                        <ParentRoute
-                            path=StaticSegment("screenplay")
-                            view=ScreenplayLayout
-                        >
-                            <Route path=StaticSegment("") view=ScreenplayView />
-                            <Route
-                                path=(StaticSegment(""), ParamSegment("adaptation"))
-                                view=ScreenplayView
-                            />
-                        </ParentRoute>
-
-                        <ParentRoute path=StaticSegment("service") view=NoLayout>
-                            <Route path=StaticSegment("") view=ServiceSubmissionView />
+                    <ParentRoute
+                        path=StaticSegment("screenplay")
+                        view=ScreenplayLayout
+                    >
+                        <Route path=StaticSegment("") view=ScreenplayView />
                         <Route
-                        path=StaticSegment("upload-materials")
-                        view=UploadMaterialsView
+                            path=(StaticSegment(""), ParamSegment("adaptation"))
+                            view=ScreenplayView
                         />
-                        </ParentRoute>
                     </ParentRoute>
-                </Routes>
-            </main>
+
+                    <ParentRoute path=StaticSegment("service") view=NoLayout>
+                        <Route path=StaticSegment("") view=ServiceSubmissionView />
+                        <Route
+                            path=StaticSegment("upload-materials")
+                            view=UploadMaterialsView
+                        />
+                    </ParentRoute>
+                </ParentRoute>
+            </Routes>
         </Router>
     }
 }

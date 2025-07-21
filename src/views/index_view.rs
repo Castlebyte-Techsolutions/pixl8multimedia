@@ -117,7 +117,7 @@ fn BookTrailerCollectionComponent() -> impl IntoView {
                     <div class="flex justify-center w-full">
                         <A
                             href="/screenplay/trailer"
-                            attr:class="rounded-full bg-indigoblue-300 px-6 py-3 text-lg text-white transition text-center hover:bg-indigoblue-600 group"
+                            attr:class="rounded-full flex items-center justify-center bg-indigoblue-300 px-6 py-3 text-lg text-white transition text-center hover:bg-indigoblue-600 group"
                         >
                             "View more"
                             <Icon

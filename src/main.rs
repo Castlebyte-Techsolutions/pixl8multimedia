@@ -1,15 +1,15 @@
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() -> pixl8multimedia::error::Result<()> {
-    use axum::{routing::get, Router};
+    use axum::{Router};
     use leptos::logging::log;
     use leptos::prelude::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
-    use pixl8multimedia::{app::*, app_state::AppState, utils::configs::core_config};
+    use pixl8multimedia::{app::*};
 
     dotenv::dotenv().ok();
 
-    let db_url = &core_config().DB_URL;
+    // let db_url = &core_config().DB_URL;
 
     let conf = get_configuration(None).unwrap();
     let addr = conf.leptos_options.site_addr;
@@ -17,36 +17,40 @@ async fn main() -> pixl8multimedia::error::Result<()> {
     // Generate the list of routes in your Leptos App
     let routes = generate_route_list(App);
 
-    let db_pool = sqlx::postgres::PgPoolOptions::new()
-        .max_connections(5)
-        .connect(db_url.as_ref())
-        .await
-        .expect("Failed to initialize database");
+    // let db_pool = sqlx::postgres::PgPoolOptions::new()
+    //     .max_connections(5)
+    //     .connect(db_url.as_ref())
+    //     .await
+    //     .expect("Failed to initialize database");
 
-    let state = AppState {
-        leptos_options: leptos_options.clone(),
-        db_pool,
-    };
+    // let state = AppState {
+    //     leptos_options: leptos_options.clone(),
+    //     db_pool,
+    // };
 
     let app = Router::new()
-        .route(
-            "/api/{*fn_name}",
-            get(server_fn_handler::server_fn_handler).post(server_fn_handler::server_fn_handler),
-        )
-        .leptos_routes_with_context(
-            &state,
-            routes,
-            {
-                let db_pool = state.db_pool.clone();
-                move || provide_context(db_pool.clone())
-            },
-            {
-                let state = state.clone();
-                move || shell(state.leptos_options.clone())
-            },
-        )
-        .fallback(leptos_axum::file_and_error_handler::<AppState, _>(shell))
-        .with_state(state);
+        // .route(
+        //     "/api/{*fn_name}",
+        //     get(server_fn_handler::server_fn_handler).post(server_fn_handler::server_fn_handler),
+        // )
+        // .leptos_routes_with_context(
+        //     &state,
+        //     routes,
+        //     {
+        //         let db_pool = state.db_pool.clone();
+        //         move || provide_context(db_pool.clone())
+        //     },
+        //     {
+        //         let state = state.clone();
+        //         move || shell(state.leptos_options.clone())
+        //     },
+        // )
+        .leptos_routes(&leptos_options, routes, {
+            let leptos_options = leptos_options.clone();
+            move || shell(leptos_options.clone())
+        })
+        .fallback(leptos_axum::file_and_error_handler(shell))
+        .with_state(leptos_options);
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
@@ -59,29 +63,29 @@ async fn main() -> pixl8multimedia::error::Result<()> {
     Ok(())
 }
 
-#[cfg(feature = "ssr")]
-mod server_fn_handler {
-    use axum::{
-        extract::{Request, State},
-        response::IntoResponse,
-    };
-    use leptos::prelude::*;
-    use leptos_axum::handle_server_fns_with_context;
-    use pixl8multimedia::app_state::AppState;
+// #[cfg(feature = "ssr")]
+// mod server_fn_handler {
+//     use axum::{
+//         extract::{Request, State},
+//         response::IntoResponse,
+//     };
+//     use leptos::prelude::*;
+//     use leptos_axum::handle_server_fns_with_context;
+//     use pixl8multimedia::app_state::AppState;
 
-    pub async fn server_fn_handler(
-        State(app_state): State<AppState>,
-        request: Request,
-    ) -> impl IntoResponse {
-        handle_server_fns_with_context(
-            move || {
-                provide_context(app_state.db_pool.clone());
-            },
-            request,
-        )
-        .await
-    }
-}
+//     pub async fn server_fn_handler(
+//         State(app_state): State<AppState>,
+//         request: Request,
+//     ) -> impl IntoResponse {
+//         handle_server_fns_with_context(
+//             move || {
+//                 provide_context(app_state.db_pool.clone());
+//             },
+//             request,
+//         )
+//         .await
+//     }
+// }
 
 #[cfg(not(feature = "ssr"))]
 pub fn main() {

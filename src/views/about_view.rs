@@ -5,7 +5,7 @@ use leptos_router::components::A;
 use crate::sections::OurWorkProcess;
 
 #[component]
-pub fn AboutUsView() -> impl IntoView {
+pub fn AboutUsView() -> AnyView {
     view! {
         <Title text="About Us" />
 
@@ -74,5 +74,5 @@ pub fn AboutUsView() -> impl IntoView {
                 </A>
             </div>
         </section>
-    }
+    }.into_any()
 }

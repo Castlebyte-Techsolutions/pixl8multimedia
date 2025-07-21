@@ -9,7 +9,7 @@ pub fn MainLayout() -> impl IntoView {
         <HeaderSection />
         <main class="overflow-y-scroll grow">
             <Outlet />
-            <FooterSection />
         </main>
+        <FooterSection />
     }
 }
